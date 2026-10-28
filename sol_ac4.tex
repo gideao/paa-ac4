@@ -15,7 +15,6 @@
 \newtheorem{lema}{Lema}
 \newtheorem{teorema}{Teorema}
 
-\renewcommand{\thesection}{\arabic{section}}
 \renewcommand{\thesubsection}{(\alph{subsection})}
 
 \title{Projeto e Análise de Algoritmos \\ Trabalho 4}
@@ -26,7 +25,7 @@
 \maketitle
 
 %====================================================================
-\section{Questão 1 -- Empacotamento de livros em envelopes (Algoritmo Guloso)}
+\section*{Questão 1 -- Empacotamento de livros em envelopes (Algoritmo Guloso)}
 \setcounter{lema}{0}\setcounter{teorema}{0}
 \noindent\textbf{Notação.} Seja $S$ o conjunto de livros ainda não empacotados,
 $C = 5$ a capacidade de um envelope, $h \in S$ um livro de \emph{maior} peso em $S$
@@ -186,7 +185,7 @@ Portanto, $T(n) = O(n\lg n) + O(n) + O(n) = O(n \lg n)$, dominado pela ordenaç�
 O espaço adicional é $O(n)$.
 
 
-\section{Questão 2 -- Paradas em hotéis (Algoritmo Guloso)}
+\section*{Questão 2 -- Paradas em hotéis (Algoritmo Guloso)}
 \setcounter{lema}{0}\setcounter{teorema}{0}
 \noindent\textbf{Notação.} Uma sequência de hotéis $S=[s_1,\dots,s_r]$ é
 \emph{viável} se $s_1 = 1$, $s_r = n$, $s_i < s_{i+1}$ e
@@ -298,7 +297,7 @@ sem necessidade de ordenação, pois $x$ já está em ordem crescente. O espaço
 \clearpage
 
 %====================================================================
-\section{Questão 3 -- Impressão nítida (Programação Dinâmica)}
+\section*{Questão 3 -- Impressão nítida (Programação Dinâmica)}
 \setcounter{lema}{0}\setcounter{teorema}{0}
 \noindent\textbf{Ideia.} No algoritmo recursivo, a única informação que muda entre
 as chamadas é $i$, o índice da primeira palavra do subproblema ($M$ e $W$ são
