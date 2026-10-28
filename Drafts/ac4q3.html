@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Modelo de uso do MathJax (HTML+Latex)</title>
+
+  <!-- MATHJAX 3 (através da CDN) -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- MATHJAX 3 (salvo no computador) -->
+  <!-- <script type="text/javascript" async src="../../../Aplicativos/MathJax-master/es5/tex-mml-chtml.js" async></script> -->
+</head>
+<body>
+
+<h1>Avaliação Continuada 04</h1>
+
+<h2>Questão 3 (Programação Dinâmica)</h2>
+
+<p>
+  <strong>(Impressão nítida)</strong> Desejamos determinar em quais palavras
+  realizar quebras de linha, de modo a não sobrar muito espaço no final das
+  linhas, exceto na última linha, que pode terminar com muitos espaços.
+  Quando quebramos a linha em uma palavra, essa palavra inicia a linha seguinte.
+  Portanto, uma solução consiste em um conjunto de índices de palavras nas quais
+  realizamos quebras de linha. O custo de uma solução é a soma dos quadrados
+  dos espaços que sobram no final de cada linha, exceto na última linha,
+  cujo custo é sempre zero.
+</p>
+
+<p>
+  Como entrada, recebemos um vetor \(L[1..n]\), em que \(L[i]\) representa
+  o número de caracteres da palavra \(i\), e um inteiro \(W\), que representa
+  o número máximo de caracteres que podem ser colocados em uma linha.
+</p>
+
+<p>
+  Considere que o tamanho de toda palavra é  
+  menor ou igual a \(W\), isto é, \(L[i] \le W\), para todo 
+  \(i \in \{1,\ldots,n\}\).
+</p>
+
+<p>
+  Seja \(M[i,j]\) o número de caracteres utilizados por uma linha que começa
+  na palavra \(i\) e termina na palavra \(j\), incluindo os espaços entre
+  as palavras. Podemos obter \(M[i,j]\) somando os tamanhos das palavras 
+  de \(i\) até \(j\), mais os \(j−i\) espaços necessários para separar 
+  estas palavras. Temos:
+</p>
+
+\[
+M[i,j]=\sum_{k=i}^{j}L[k]+(j-i).
+\]
+
+<p>
+  O custo de uma linha que começa na palavra \(i\) e termina na palavra \(j\)
+  é dado por:
+</p>
+
+\[
+C[i,j]=
+\begin{cases}
+0, & \text{se } j=n,\\
+(W-M[i,j])^2, & \text{caso contrário}.
+\end{cases}
+\]
+
+<p><strong>Exemplo:</strong></p>
+
+<pre><code>Texto:       abcde fghijk lm nopqr stuv x w yz abcde fg hijkl
+Índices:     1     2      3  4     5    6 7 8  9     10 11
+Tamanhos:    5     6      2  5     4    1 1 2  5     2  5
+
+Tamanho máximo de uma linha: W = 12.
+</code></pre>
+
+<p>
+  Qual é o custo da solução que realiza quebras de linha antes das palavras
+  \(3\), \(5\), \(8\) e \(11\)?
+</p>
+
+<table border="1" cellpadding="6" cellspacing="0">
+  <thead>
+    <tr>
+      <th>Texto</th>
+      <th>Índices</th>
+      <th>Tamanho da linha</th>
+      <th>Custo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>abcde fghijk</td>
+      <td>\(1,2\)</td>
+      <td>\(5+6+1=12\)</td>
+      <td>\((12-12)^2=0\)</td>
+    </tr>
+    <tr>
+      <td>lm nopqr</td>
+      <td>\(3,4\)</td>
+      <td>\(2+5+1=8\)</td>
+      <td>\((12-8)^2=16\)</td>
+    </tr>
+    <tr>
+      <td>stuv x w</td>
+      <td>\(5,6,7\)</td>
+      <td>\(4+1+1+1+1=8\)</td>
+      <td>\((12-8)^2=16\)</td>
+    </tr>
+    <tr>
+      <td>yz abcde fg</td>
+      <td>\(8,9,10\)</td>
+      <td>\(2+5+2+2=11\)</td>
+      <td>\((12-11)^2=1\)</td>
+    </tr>
+    <tr>
+      <td>hijkl</td>
+      <td>\(11\)</td>
+      <td>\(5\)</td>
+      <td>\(0\), última linha</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Portanto, o custo total dessa solução é
+  \(0+16+16+1=\boxed{33}\).
+</p>
+
+<p>
+  Podemos preencher a matriz \(M\) em tempo \(O(n^2)\) utilizando o seguinte
+  algoritmo:
+</p>
+
+<pre><code>para i de 1 até n
+    M[i,i] = L[i]
+    para j de i+1 até n
+        M[i,j] = M[i,j-1] + L[j] + 1
+</code></pre>
+
+<p>
+  O algoritmo recursivo de backtracking abaixo encontra uma solução ótima
+  testando todas as possibilidades para a próxima quebra de linha e resolvendo
+  recursivamente o subproblema a partir dessa quebra. Porém, 
+  ele possui complexidade de tempo exponencial. 
+</p>
+
+<pre><code>Algoritmo impressão_nítida(M[1..n,1..n], W, i):
+
+Entrada:
+    M[a,b]: tamanho da linha que começa na palavra a
+            e termina na palavra b.
+    W: tamanho máximo de uma linha.
+    i: índice da primeira palavra do subproblema.
+
+Saída:
+    Tupla (sol, custo), em que sol é o conjunto de índices
+    das quebras de linha de uma solução ótima e custo é
+    o custo dessa solução.
+
+01  se M[i,n] <= W
+02      retorne ({}, 0)
+
+03  menor_custo = infinito
+04  para j de i+1 até n
+05      se M[i,j-1] > W então break
+06      (sub_sol, sub_custo) = impressão_nítida(M,W,j)
+07      custo = (W - M[i,j-1])^2 + sub_custo
+08      se custo < menor_custo
+09          menor_custo = custo
+10          melhor_solucao = sub_sol U {j}
+11  retorne (melhor_solucao, menor_custo)
+</code></pre>
+
+<p>
+  Com base no algoritmo recursivo de backtracking acima, projete um algoritmo
+  de <strong>programação dinâmica</strong> de tempo polinomial para resolver
+  o mesmo problema.
+</p>
+
+<ol type="a">
+  <li>
+    Qual é o número de subsoluções armazenadas na tabela de programação
+    dinâmica? Justifique.
+  </li>
+  <li>
+    Como é feito o preenchimento do caso base?
+  </li>
+  <li>
+    Qual é a ordem de preenchimento da tabela? Argumente que essa ordem
+    não acessa elementos ainda não preenchidos.
+  </li>
+  <li>
+    Forneça o pseudocódigo do algoritmo.
+  </li>
+  <li>
+    Qual é a complexidade de tempo do algoritmo?
+  </li>
+</ol>
+
+<p>
+  <strong>Observação:</strong> A linha 10 do algoritmo recursivo realiza uma
+  cópia da lista <code>sub_sol</code>, de modo que seu custo depende do número
+  de elementos dessa lista. Entretanto, é possível recuperar a solução ótima
+  armazenando apenas o índice \(j\) da próxima quebra de linha para cada
+  posição inicial \(i\). Assim, para simplificar a análise, considere que
+  a execução da linha 10 tem tempo constante.
+</p>
+
+
+<hr>
+
+
+</body>
+</html>

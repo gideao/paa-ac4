@@ -1,0 +1,417 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\floatname{algorithm}{Algoritmo}
+\renewcommand{\algorithmicrequire}{\textbf{Entrada:}}
+\renewcommand{\algorithmicensure}{\textbf{Saída:}}
+
+\newtheorem{lema}{Lema}
+\newtheorem{teorema}{Teorema}
+
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{(\alph{subsection})}
+
+\title{Projeto e Análise de Algoritmos \\ Trabalho 4}
+\author{Gideão Santana}
+\date{}
+
+\begin{document}
+\maketitle
+
+%====================================================================
+\section{Questão 1 -- Empacotamento de livros em envelopes (Algoritmo Guloso)}
+\setcounter{lema}{0}\setcounter{teorema}{0}
+\noindent\textbf{Notação.} Seja $S$ o conjunto de livros ainda não empacotados,
+$C = 5$ a capacidade de um envelope, $h \in S$ um livro de \emph{maior} peso em $S$
+e $\ell \in S\setminus\{h\}$ um livro de \emph{menor} peso em $S\setminus\{h\}$.
+Um envelope é \emph{viável} se contém no máximo dois livros e peso total $\le C$.
+Denotamos por $\mathrm{OPT}(S)$ o número mínimo de envelopes para $S$.
+
+%--------------------------------------------------------------------
+\subsection{Estratégia gulosa}
+
+Ordene os livros em ordem não crescente de peso. A cada passo, tome o livro
+mais pesado ainda não empacotado, $h$:
+\begin{itemize}
+  \item se $p_h + p_\ell \le 5$, coloque $h$ e o livro mais leve restante $\ell$
+        no mesmo envelope, $\{h,\ell\}$;
+  \item caso contrário (ou se $h$ for o único livro restante), coloque $h$ sozinho, $\{h\}$.
+\end{itemize}
+
+\noindent\textbf{Por que é promissora.} O livro mais pesado é o mais difícil de
+acomodar: se ele não cabe com o livro mais leve, não cabe com nenhum outro, e
+portanto ficará sozinho em \emph{qualquer} solução. Se cabe, usar o mais leve como
+parceiro é a escolha que menos ``gasta'' livros úteis: os livros de peso
+intermediário ficam disponíveis para serem pareados entre si ou com outros
+livros pesados.
+
+\noindent\textbf{Exemplo.} Ordenando: $5\,(4.0), 3\,(3.0), 4\,(2.5), 2\,(2.0), 1\,(1.0)$.
+Obtemos $\{5,1\}$ ($4+1=5$), $\{3,2\}$ ($3+2=5$) e $\{4\}$: 3 envelopes.
+
+%--------------------------------------------------------------------
+\subsection{Propriedade de escolha gulosa}
+
+\begin{lema}[Escolha gulosa]
+Seja $S$ não vazio, $h$ um livro de maior peso em $S$ e $\ell$ um livro de menor
+peso em $S \setminus \{h\}$. Seja $E$ o envelope escolhido pelo algoritmo, isto é,
+$E=\{h,\ell\}$ se $|S|\ge 2$ e $p_h+p_\ell\le 5$, e $E=\{h\}$ caso contrário.
+Então existe uma solução ótima para $S$ que contém o envelope $E$.
+\end{lema}
+
+\begin{proof}
+Seja $O$ uma solução ótima qualquer para $S$.
+
+\smallskip\noindent\emph{Caso (ii): $E = \{h\}$.} Se $|S|=1$, é trivial. Senão,
+$p_h + p_\ell > 5$, e para todo $x \in S\setminus\{h\}$ temos $p_x \ge p_\ell$, logo
+$p_h + p_x \ge p_h + p_\ell > 5$. Assim nenhum livro pode acompanhar $h$, e em
+$O$ (como em qualquer solução) $h$ está sozinho: $\{h\} \in O$.
+
+\smallskip\noindent\emph{Caso (i): $E = \{h,\ell\}$, com $p_h+p_\ell \le 5$.}
+Se $\{h,\ell\}\in O$, nada a fazer. Caso contrário, construímos $O'$ por troca:
+\begin{enumerate}
+  \item \emph{$h$ está sozinho em $O$.} Seja $B$ o envelope de $\ell$ em $O$
+    ($B=\{\ell\}$ ou $B=\{\ell,y\}$). Substitua $\{h\}$ e $B$ por $\{h,\ell\}$ e
+    $B\setminus\{\ell\}$ (descartando-o se ficar vazio). $\{h,\ell\}$ é viável por
+    hipótese e $B\setminus\{\ell\}$ é viável por ser subconjunto de envelope viável.
+  \item \emph{$h$ está com $x \ne \ell$ em $O$, ou seja, $\{h,x\} \in O$.}
+    Seja $B$ o envelope de $\ell$.
+    \begin{itemize}
+      \item Se $B=\{\ell\}$: troque $\{h,x\},\{\ell\}$ por $\{h,\ell\},\{x\}$.
+      \item Se $B=\{\ell,y\}$: troque $\{h,x\},\{\ell,y\}$ por $\{h,\ell\},\{x,y\}$.
+        O envelope $\{x,y\}$ é viável, pois $p_y \le p_h$ ($h$ é o mais pesado) e,
+        portanto, $p_x + p_y \le p_x + p_h \le 5$.
+    \end{itemize}
+\end{enumerate}
+Em todos os casos $O'$ é uma partição viável de $S$ com $|O'| \le |O|$, logo
+$O'$ é ótima e contém $\{h,\ell\}$.
+\end{proof}
+
+%--------------------------------------------------------------------
+\subsection{Propriedade de subestrutura ótima}
+
+O subproblema resultante após a escolha gulosa $E$ é $S' = S \setminus E$:
+\begin{itemize}
+  \item caso (i): $S' = S \setminus \{h,\ell\}$ (os livros restantes, exceto o mais pesado e o mais leve);
+  \item caso (ii): $S' = S \setminus \{h\}$ (os livros restantes, exceto o mais pesado).
+\end{itemize}
+Em ambos os casos $S'$ é uma instância do mesmo problema (mesmas restrições).
+
+\begin{lema}[Subestrutura ótima]
+Se $O$ é uma solução ótima para $S$ que contém $E$ (existe pelo Lema 1), então
+$O \setminus \{E\}$ é uma solução ótima para $S'$. Consequentemente,
+$\mathrm{OPT}(S) = 1 + \mathrm{OPT}(S')$, e $\{E\} \cup O^*$ é ótima para $S$ para
+qualquer solução ótima $O^*$ de $S'$.
+\end{lema}
+
+\begin{proof}
+$O\setminus\{E\}$ particiona $S'$ em envelopes viáveis, com $|O|-1$ envelopes.
+Suponha que exista uma solução $O''$ para $S'$ com $|O''| < |O|-1$. Então
+$O''\cup\{E\}$ é uma solução viável para $S$ (pois $E$ é viável e disjunto de $S'$)
+com $|O''|+1 < |O|$ envelopes, contradizendo a otimalidade de $O$. Logo
+$\mathrm{OPT}(S') = |O|-1 = \mathrm{OPT}(S)-1$, e para qualquer $O^*$ ótima de $S'$,
+$|\{E\}\cup O^*| = 1+\mathrm{OPT}(S') = \mathrm{OPT}(S)$.
+\end{proof}
+
+%--------------------------------------------------------------------
+\subsection{Pseudocódigo}
+
+Após ordenar em ordem não crescente, o índice $i$ aponta para o livro mais pesado
+restante e $j$ para o mais leve restante (técnica de dois ponteiros).
+
+\begin{algorithm}[H]
+\caption{\textsc{Empacota-Livros}$(p, n)$}
+\begin{algorithmic}[1]
+\Require pesos $p_1,\dots,p_n$, com $0 < p_k \le 5$
+\Ensure lista $\mathcal{E}$ de envelopes com o menor número possível de envelopes
+\State $L \gets$ livros $1..n$ ordenados em ordem \textbf{não crescente} de peso \Comment{$O(n\lg n)$}
+\State $\mathcal{E} \gets \emptyset$
+\State $i \gets 1$; \quad $j \gets n$
+\While{$i \le j$}
+  \If{$i < j$ \textbf{and} $p_{L[i]} + p_{L[j]} \le 5$} \Comment{caso (i)}
+    \State $\mathcal{E} \gets \mathcal{E} \cup \{\{L[i], L[j]\}\}$
+    \State $j \gets j - 1$
+  \Else \Comment{caso (ii) ou último livro}
+    \State $\mathcal{E} \gets \mathcal{E} \cup \{\{L[i]\}\}$
+  \EndIf
+  \State $i \gets i + 1$
+\EndWhile
+\State \Return $\mathcal{E}$
+\end{algorithmic}
+\end{algorithm}
+
+Invariante: no início de cada iteração, os livros não empacotados são exatamente
+$L[i..j]$, com $L[i]$ o mais pesado e $L[j]$ o mais leve entre eles.
+
+%--------------------------------------------------------------------
+\subsection{Correção}
+
+\begin{teorema}
+\textsc{Empacota-Livros} devolve uma distribuição viável com $\mathrm{OPT}(S)$ envelopes.
+\end{teorema}
+
+\begin{proof}
+Por indução em $|S|$ (o número de livros em $L[i..j]$).
+\emph{Base:} $|S| = 0$: o algoritmo devolve $\emptyset$, que é ótimo.
+\emph{Passo:} seja $|S|\ge 1$. Pelo invariante, o algoritmo escolhe exatamente o
+envelope $E$ dos itens (a)--(b): $\{L[i],L[j]\}$ se cabem juntos e $i<j$, ou
+$\{L[i]\}$ caso contrário; $E$ é viável. Pelo Lema~1, existe solução ótima de $S$
+que contém $E$. O algoritmo prossegue sobre $S' = S\setminus E = L[i'..j']$
+(subproblema identificado em (c)), com $|S'| < |S|$; pela hipótese de indução,
+devolve uma solução ótima $O^*$ de $S'$. Pelo Lema~2, $\{E\}\cup O^*$ é ótima para
+$S$, com $1+\mathrm{OPT}(S') = \mathrm{OPT}(S)$ envelopes. Como cada livro entra em
+exatamente um envelope (cada índice sai de $L[i..j]$ uma única vez), a saída é uma
+partição válida.
+\end{proof}
+
+%--------------------------------------------------------------------
+\subsection{Complexidade}
+
+\begin{itemize}
+  \item \textbf{Ordenação:} $O(n \lg n)$ com um algoritmo ótimo por comparação
+        (\textit{Merge Sort} ou \textit{Heapsort}).
+  \item \textbf{Laço:} a cada iteração $i$ aumenta em 1 (e $j$ possivelmente
+        diminui em 1), logo $j-i$ decresce ao menos 1 por iteração e há no máximo
+        $n$ iterações, cada uma em $O(1)$: total $O(n)$.
+  \item \textbf{Construção da saída:} cada envelope é inserido em $O(1)$; são no
+        máximo $n$ envelopes: $O(n)$.
+\end{itemize}
+Portanto, $T(n) = O(n\lg n) + O(n) + O(n) = O(n \lg n)$, dominado pela ordenação.
+O espaço adicional é $O(n)$.
+
+
+\section{Questão 2 -- Paradas em hotéis (Algoritmo Guloso)}
+\setcounter{lema}{0}\setcounter{teorema}{0}
+\noindent\textbf{Notação.} Uma sequência de hotéis $S=[s_1,\dots,s_r]$ é
+\emph{viável} se $s_1 = 1$, $s_r = n$, $s_i < s_{i+1}$ e
+$x[s_{i+1}] - x[s_i] \le D$ para todo $1 \le i < r$. A escolha gulosa a partir
+da parada $u$ é $\max\{\, w > u : x[w] - x[u] \le D \,\}$, que existe para
+$u<n$, pois $x[u+1]-x[u]\le D$.
+
+\noindent\textbf{Exemplo} ($D=12$): a partir do hotel 1 ($x=0$), o mais distante
+alcançável é o hotel 4 ($x=11$); a partir do hotel 4, é o hotel 6 ($x=17$).
+Logo $G=[1,4,6]$.
+
+%--------------------------------------------------------------------
+\subsection{Propriedade de escolha gulosa (argumento de troca)}
+
+Sejam $G=[u_1,\dots,u_m]$ e $O=[v_1,\dots,v_\ell]$ como no enunciado, com
+$v_i = u_i$ para $1\le i<k$, $v_k \ne u_k$ e $1<k<\ell$.
+
+\begin{lema}
+$v_k < u_k$.
+\end{lema}
+\begin{proof}
+Como $O$ é viável e $v_{k-1}=u_{k-1}$, temos $x[v_k] - x[u_{k-1}] \le D$ e
+$v_k > u_{k-1}$. Logo $v_k$ é um candidato da escolha gulosa a partir de $u_{k-1}$,
+e $u_k$ é o maior candidato: $v_k \le u_k$. Como $v_k \ne u_k$, $v_k < u_k$.
+\end{proof}
+
+\noindent\textbf{Construção.} Troque $v_k$ por $u_k$ em $O$, descartando os
+hotéis de $O$ que ficaram ``para trás'' de $u_k$:
+\[
+O' = [\,v_1,\dots,v_{k-1},\; u_k,\; v_{j+1},\dots,v_\ell\,],
+\qquad j = \max\{\, i \ge k : v_i \le u_k \,\}.
+\]
+(Note que $j\ge k$, pois $v_k<u_k$. Se $v_j = u_k$, então $v_j$ e $u_k$ são o mesmo
+hotel e ele aparece uma única vez.)
+
+\begin{lema}
+$O'$ é viável e $|O'| \le |O|$.
+\end{lema}
+\begin{proof}
+\emph{Tamanho:} $O'$ remove de $O$ os $j-k+1 \ge 1$ hotéis $v_k,\dots,v_j$ e
+insere apenas $u_k$, logo $|O'| = \ell - (j-k) \le \ell$.
+
+\emph{Ordem:} $v_{k-1}=u_{k-1}<u_k$ e, pela escolha de $j$, $u_k < v_{j+1}$.
+
+\emph{Distâncias:} os trechos $v_1\to\cdots\to v_{k-1}$ e
+$v_{j+1}\to\cdots\to v_\ell$ são trechos de $O$, portanto $\le D$. Restam dois trechos:
+\begin{itemize}
+  \item $u_{k-1}\to u_k$: $x[u_k]-x[u_{k-1}] \le D$ pela definição da escolha gulosa;
+  \item $u_k \to v_{j+1}$ (se $j<\ell$): como $x[v_j] \le x[u_k]$,
+        \[ x[v_{j+1}] - x[u_k] \;\le\; x[v_{j+1}] - x[v_j] \;\le\; D. \]
+\end{itemize}
+\emph{Extremos:} $O'$ começa em $v_1=1$. Se $j<\ell$, termina em $v_\ell=n$;
+se $j=\ell$, então $n = v_\ell \le u_k \le n$, logo $u_k=n$ e $O'$ termina em $n$.
+\end{proof}
+
+Como $O$ é ótima e $|O'|\le|O|$, $O'$ também é ótima (logo, na verdade, $j=k$ e
+$|O'|=|O|$), e $O'$ coincide com $G$ nas $k$ primeiras paradas. Isso prova a
+sentença: é possível trocar $v_k$ por $u_k$ sem piorar a solução ótima.
+
+\begin{teorema}
+A solução gulosa $G$ é ótima, ou seja, $m = \ell$.
+\end{teorema}
+\begin{proof}
+Aplicando a troca repetidamente, o primeiro índice de divergência cresce a cada
+passo; obtemos assim uma solução ótima $O^*=[v_1,\dots,v_\ell]$ com $v_i=u_i$
+para todo $1\le i\le \ell-1$. Como $O^*$ é viável, $x[n]-x[u_{\ell-1}] =
+x[v_\ell]-x[v_{\ell-1}] \le D$; então o hotel $n$ (o mais distante de todos) é
+alcançável a partir de $u_{\ell-1}$ e a escolha gulosa é $u_\ell = n$. Assim o
+guloso termina com $m=\ell$ paradas. (Equivalentemente, pelo subproblema descrito no
+enunciado, a cada troca o problema restante parte de $x[u_k]$ e o argumento se
+repete por indução.)
+\end{proof}
+
+%--------------------------------------------------------------------
+\subsection{Pseudocódigo e complexidade}
+
+\begin{algorithm}[H]
+\caption{\textsc{Paradas-Hotéis}$(x, n, D)$}
+\begin{algorithmic}[1]
+\Require posições $x[1..n]$ em ordem crescente, com $x[i+1]-x[i]\le D$
+\Ensure lista $G$ com o menor número de paradas, de $1$ até $n$
+\State $G \gets [1]$
+\State $u \gets 1$ \Comment{última parada}
+\State $i \gets 1$ \Comment{candidato atual}
+\While{$u < n$}
+  \While{$i < n$ \textbf{and} $x[i+1] - x[u] \le D$}
+    \State $i \gets i + 1$ \Comment{avança enquanto o próximo hotel é alcançável}
+  \EndWhile
+  \State $u \gets i$ \Comment{escolha gulosa: hotel mais distante alcançável}
+  \State \textsc{Anexa}$(G, u)$
+\EndWhile
+\State \Return $G$
+\end{algorithmic}
+\end{algorithm}
+
+\noindent\textbf{Terminação e corretude do laço.} No início de cada iteração do
+laço externo, $i = u$. O laço interno avança $i$ ao maior índice com
+$x[i]-x[u]\le D$ (a escolha gulosa); como $x[u+1]-x[u]\le D$, ele avança pelo menos
+uma vez, logo $u$ cresce estritamente e o algoritmo termina com $u=n$.
+
+\noindent\textbf{Complexidade.} O índice $i$ nunca decresce e vai de $1$ até $n$,
+então o laço interno executa no total no máximo $n-1$ incrementos ao longo de toda
+a execução. O laço externo executa no máximo $n-1$ vezes, cada uma com custo
+$O(1)$ fora do laço interno (anexar a $G$ custa $O(1)$). Logo o tempo total é
+\[ T(n) = O(n), \]
+sem necessidade de ordenação, pois $x$ já está em ordem crescente. O espaço adicional
+é $O(n)$ para armazenar $G$ (ou $O(1)$, se as paradas forem apenas impressas).
+
+\clearpage
+
+%====================================================================
+\section{Questão 3 -- Impressão nítida (Programação Dinâmica)}
+\setcounter{lema}{0}\setcounter{teorema}{0}
+\noindent\textbf{Ideia.} No algoritmo recursivo, a única informação que muda entre
+as chamadas é $i$, o índice da primeira palavra do subproblema ($M$ e $W$ são
+fixos). Como o mesmo $i$ é resolvido muitas vezes por caminhos diferentes de quebras,
+memorizamos a resposta de cada $i$ em vetores:
+\begin{itemize}
+  \item $\mathit{custo}[i]$: custo mínimo para imprimir as palavras $i,\dots,n$;
+  \item $\mathit{prox}[i]$: índice $j$ da próxima quebra de linha em uma solução
+        ótima a partir de $i$ ($\mathit{prox}[i]=n+1$ indica que não há quebra).
+\end{itemize}
+A recorrência, tirada diretamente das linhas 01--11 do algoritmo recursivo, é
+\[
+\mathit{custo}[i] =
+\begin{cases}
+0, & \text{se } M[i,n] \le W,\\[2pt]
+\displaystyle\min_{\substack{i < j \le n\\ M[i,j-1]\le W}}
+  \Big\{ (W - M[i,j-1])^2 + \mathit{custo}[j] \Big\}, & \text{caso contrário.}
+\end{cases}
+\]
+O conjunto do $\min$ nunca é vazio, pois $M[i,i]=L[i]\le W$ (o candidato $j=i+1$
+sempre é válido). A resposta do problema é $\mathit{custo}[1]$.
+
+%--------------------------------------------------------------------
+\subsection{Número de subsoluções}
+
+São armazenadas $n$ subsoluções: uma para cada $i \in \{1,\dots,n\}$, isto é,
+$\mathit{custo}[1..n]$ (e o respectivo $\mathit{prox}[1..n]$).
+\emph{Justificativa:} todo subproblema gerado pela recursão é ``imprimir as palavras
+$i,\dots,n$'', identificado unicamente pelo parâmetro $i$, que só assume valores entre
+$1$ e $n$ (a chamada inicial usa $i=1$ e as recursivas usam $j\in\{i+1,\dots,n\}$).
+Portanto há apenas $n$ subproblemas distintos, embora a recursão sem memorização os
+resolva um número exponencial de vezes.
+
+%--------------------------------------------------------------------
+\subsection{Caso base}
+
+O caso base corresponde às linhas 01--02: para todo $i$ tal que $M[i,n] \le W$, as
+palavras $i,\dots,n$ cabem em uma única linha, que é a última e tem custo zero.
+Assim,
+\[
+\mathit{custo}[i] = 0 \quad\text{e}\quad \mathit{prox}[i] = n+1
+\qquad \text{para todo } i \text{ com } M[i,n]\le W.
+\]
+Como $M[i,n]$ decresce quando $i$ cresce, esses índices formam um sufixo
+$\{i_0,\dots,n\}$; em particular, $i=n$ é sempre caso base, pois $M[n,n]=L[n]\le W$.
+
+%--------------------------------------------------------------------
+\subsection{Ordem de preenchimento}
+
+A tabela é preenchida com $i$ \textbf{decrescente}, de $n$ até $1$.
+
+\emph{Argumento:} $\mathit{custo}[i]$ depende apenas de $\mathit{custo}[j]$ com
+$j > i$ (na recorrência, $j$ varia de $i+1$ a $n$). Quando calculamos a posição $i$,
+todas as posições $i+1,\dots,n$ já foram preenchidas, seja pelo caso base, seja
+em iterações anteriores. Logo nenhum elemento ainda não preenchido é acessado.
+A matriz $M$ é preenchida antes, pelo algoritmo do enunciado.
+
+%--------------------------------------------------------------------
+\subsection{Pseudocódigo}
+
+\begin{algorithm}[H]
+\caption{\textsc{Impressão-Nítida-PD}$(L, n, W)$}
+\begin{algorithmic}[1]
+\Require tamanhos $L[1..n]$, com $L[i]\le W$, e largura $W$
+\Ensure custo mínimo e conjunto de quebras de uma solução ótima
+\For{$i \gets 1$ \textbf{até} $n$} \Comment{preenche $M$ em $O(n^2)$}
+  \State $M[i,i] \gets L[i]$
+  \For{$j \gets i+1$ \textbf{até} $n$}
+    \State $M[i,j] \gets M[i,j-1] + L[j] + 1$
+  \EndFor
+\EndFor
+\For{$i \gets n$ \textbf{até} $1$ \textbf{passo} $-1$} \Comment{ordem decrescente}
+  \If{$M[i,n] \le W$} \Comment{caso base: última linha}
+    \State $\mathit{custo}[i] \gets 0$; \quad $\mathit{prox}[i] \gets n+1$
+  \Else
+    \State $\mathit{custo}[i] \gets \infty$
+    \For{$j \gets i+1$ \textbf{até} $n$}
+      \If{$M[i,j-1] > W$} \textbf{break} \EndIf
+      \State $c \gets (W - M[i,j-1])^2 + \mathit{custo}[j]$
+      \If{$c < \mathit{custo}[i]$}
+        \State $\mathit{custo}[i] \gets c$; \quad $\mathit{prox}[i] \gets j$
+      \EndIf
+    \EndFor
+  \EndIf
+\EndFor
+\State $\mathit{sol} \gets \emptyset$; \quad $i \gets 1$ \Comment{reconstrução da solução}
+\While{$\mathit{prox}[i] \le n$}
+  \State $i \gets \mathit{prox}[i]$
+  \State $\mathit{sol} \gets \mathit{sol} \cup \{i\}$
+\EndWhile
+\State \Return $(\mathit{sol}, \mathit{custo}[1])$
+\end{algorithmic}
+\end{algorithm}
+
+\noindent\textbf{Exemplo.} Para a entrada do enunciado ($W=12$), o algoritmo
+obtém $\mathit{custo}[1]=33$ com quebras em $\{3,5,8,11\}$. Logo, a solução
+apresentada no enunciado é ótima.
+
+%--------------------------------------------------------------------
+\subsection{Complexidade de tempo}
+
+\begin{itemize}
+  \item \textbf{Preenchimento de $M$:} $\sum_{i=1}^{n}(n-i+1) = O(n^2)$.
+  \item \textbf{Preenchimento de $\mathit{custo}$ e $\mathit{prox}$:} são $n$
+        subproblemas (item (a)); cada um examina no máximo $n-i$ candidatos $j$,
+        cada um em $O(1)$ (a linha 10 do recursivo vira a atribuição
+        $\mathit{prox}[i]\gets j$, de custo constante). Total:
+        $\sum_{i=1}^{n} O(n-i) = O(n^2)$.
+  \item \textbf{Reconstrução:} cada passo avança $i$ estritamente, logo $O(n)$.
+\end{itemize}
+Portanto, o tempo total é
+\[ T(n) = O(n^2) + O(n^2) + O(n) = O(n^2), \]
+polinomial, em contraste com o tempo exponencial do backtracking. O espaço é
+$O(n^2)$ por causa de $M$ (os vetores $\mathit{custo}$ e $\mathit{prox}$ ocupam $O(n)$).
+
+\end{document}

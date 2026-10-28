@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Modelo de uso do MathJax (HTML+Latex)</title>
+
+  <!-- MATHJAX 3 (através da CDN) -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- MATHJAX 3 (salvo no computador) -->
+  <!-- <script type="text/javascript" async src="../../../Aplicativos/MathJax-master/es5/tex-mml-chtml.js" async></script> -->
+</head>
+<body>
+
+<h1>Avaliação Continuada 04</h1>
+
+<hr>
+
+<h2>Questão 1 (Algoritmo Guloso)</h2>
+
+<p>
+  <strong>(Empacotamento de livros em envelopes)</strong>
+  Considere um conjunto de \(n\) livros, em que cada livro \(i\),
+  \(1 \leq i \leq n\), possui peso \(p_i\), com \(0 < p_i \leq 5\).
+  Desejamos distribuir todos os livros no menor número possível de envelopes,
+  de modo que cada envelope contenha no máximo dois livros e que a soma dos
+  pesos dos livros em cada envelope seja no máximo \(5\).
+  Cada livro deve ser colocado em exatamente um envelope.
+</p>
+
+<p>
+  Formalmente, desejamos particionar o conjunto de livros
+  \(\{1,2,\ldots,n\}\) em um número mínimo de grupos, de modo que cada grupo
+  contenha no máximo dois livros e satisfaça a restrição de peso.
+</p>
+
+<p><strong>Exemplo:</strong> Considere \(n=5\) livros com os seguintes pesos:</p>
+
+<pre><code>Livro:  1    2    3    4    5
+Peso:  1.0  2.0  3.0  2.5  4.0
+</code></pre>
+
+<p>
+  Uma solução viável consiste em utilizar quatro envelopes:
+  \(\{1,2\}\), \(\{3\}\), \(\{4\}\) e \(\{5\}\).
+  Entretanto, outras distribuições podem utilizar menos 
+  envelopes, como por exemplo: 
+  \(\{1,4\}\), \(\{2,3\}\) e \(\{5\}\).
+  O objetivo é desenvolver um algoritmo guloso que encontre uma distribuição
+  ótima em tempo \(O(n \lg n)\).
+</p>
+
+<p>
+  Responda aos itens a seguir.
+</p>
+
+<ol type="a">
+  <li>
+    <strong>Estratégia gulosa:</strong>
+    Descreva uma estratégia gulosa para resolver o problema. Explique como
+    escolher os livros que serão colocados no próximo envelope e por que
+    essa escolha parece promissora.
+  </li>
+
+  <li>
+    <strong>Propriedade de escolha gulosa:</strong>
+    Enuncie e prove que existe uma solução ótima que contém a escolha
+    realizada pelo seu algoritmo guloso.
+
+    <br /><br />
+
+    <strong>Dica:</strong> Ordene os livros em ordem não crescente de peso
+    e considere o livro mais pesado ainda não colocado em um envelope.
+    Analise os dois casos seguintes: (i) existe outro livro que pode ser
+    colocado no mesmo envelope que ele; (ii) não existe nenhum livro
+    restante que possa acompanhá-lo. No primeiro caso, considere se é
+    possível transformar uma solução ótima para que ela agrupe o livro
+    mais pesado com um livro escolhido pela estratégia gulosa, sem aumentar
+    o número de envelopes. Utilize um argumento de troca.
+  </li>
+
+  <li>
+    <strong>Propriedade de subestrutura ótima:</strong>
+    Mostre que, após realizar a escolha gulosa, o problema restante também
+    possui uma solução ótima que, juntamente com a escolha realizada,
+    produz uma solução ótima para o problema original. Identifique
+    precisamente qual é o subproblema resultante em cada caso.
+  </li>
+
+  <li>
+    <strong>Pseudocódigo:</strong>
+    Apresente o pseudocódigo do algoritmo guloso, incluindo a ordenação
+    dos livros, a escolha dos livros para cada envelope e a construção
+    da distribuição final.
+  </li>
+
+  <li>
+    <strong>Correção:</strong>
+    Com base nas propriedades de escolha gulosa e de subestrutura ótima,
+    apresente um argumento de correção que justifique por que o algoritmo
+    sempre encontra uma solução com o menor número possível de envelopes.
+  </li>
+
+  <li>
+    <strong>Complexidade:</strong>
+    Analise a complexidade de tempo do algoritmo. Justifique que o tempo
+    total é \(O(n \lg n)\).
+  </li>
+</ol>
+
+
+
+</body>
+</html>

@@ -1,0 +1,181 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\floatname{algorithm}{Algoritmo}
+\renewcommand{\algorithmicrequire}{\textbf{Entrada:}}
+\renewcommand{\algorithmicensure}{\textbf{Saída:}}
+
+\newtheorem{lema}{Lema}
+\newtheorem{teorema}{Teorema}
+
+\title{Avaliação Continuada 04 -- Questão 1\\ \large Empacotamento de livros em envelopes}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Notação.} Seja $S$ o conjunto de livros ainda não empacotados,
+$C = 5$ a capacidade de um envelope, $h \in S$ um livro de \emph{maior} peso em $S$
+e $\ell \in S\setminus\{h\}$ um livro de \emph{menor} peso em $S\setminus\{h\}$.
+Um envelope é \emph{viável} se contém no máximo dois livros e peso total $\le C$.
+Denotamos por $\mathrm{OPT}(S)$ o número mínimo de envelopes para $S$.
+
+%--------------------------------------------------------------------
+\section*{(a) Estratégia gulosa}
+
+Ordene os livros em ordem não crescente de peso. A cada passo, tome o livro
+mais pesado ainda não empacotado, $h$:
+\begin{itemize}
+  \item se $p_h + p_\ell \le 5$, coloque $h$ e o livro mais leve restante $\ell$
+        no mesmo envelope, $\{h,\ell\}$;
+  \item caso contrário (ou se $h$ for o único livro restante), coloque $h$ sozinho, $\{h\}$.
+\end{itemize}
+
+\noindent\textbf{Por que é promissora.} O livro mais pesado é o mais difícil de
+acomodar: se ele não cabe com o livro mais leve, não cabe com nenhum outro, e
+portanto ficará sozinho em \emph{qualquer} solução. Se cabe, usar o mais leve como
+parceiro é a escolha que menos ``gasta'' livros úteis: os livros de peso
+intermediário ficam disponíveis para serem pareados entre si ou com outros
+livros pesados.
+
+\noindent\textbf{Exemplo.} Ordenando: $5\,(4.0), 3\,(3.0), 4\,(2.5), 2\,(2.0), 1\,(1.0)$.
+Obtemos $\{5,1\}$ ($4+1=5$), $\{3,2\}$ ($3+2=5$) e $\{4\}$: 3 envelopes.
+
+%--------------------------------------------------------------------
+\section*{(b) Propriedade de escolha gulosa}
+
+\begin{lema}[Escolha gulosa]
+Seja $S$ não vazio, $h$ um livro de maior peso em $S$ e $\ell$ um livro de menor
+peso em $S \setminus \{h\}$. Seja $E$ o envelope escolhido pelo algoritmo, isto é,
+$E=\{h,\ell\}$ se $|S|\ge 2$ e $p_h+p_\ell\le 5$, e $E=\{h\}$ caso contrário.
+Então existe uma solução ótima para $S$ que contém o envelope $E$.
+\end{lema}
+
+\begin{proof}
+Seja $O$ uma solução ótima qualquer para $S$.
+
+\smallskip\noindent\emph{Caso (ii): $E = \{h\}$.} Se $|S|=1$, é trivial. Senão,
+$p_h + p_\ell > 5$, e para todo $x \in S\setminus\{h\}$ temos $p_x \ge p_\ell$, logo
+$p_h + p_x \ge p_h + p_\ell > 5$. Assim nenhum livro pode acompanhar $h$, e em
+$O$ (como em qualquer solução) $h$ está sozinho: $\{h\} \in O$.
+
+\smallskip\noindent\emph{Caso (i): $E = \{h,\ell\}$, com $p_h+p_\ell \le 5$.}
+Se $\{h,\ell\}\in O$, nada a fazer. Caso contrário, construímos $O'$ por troca:
+\begin{enumerate}
+  \item \emph{$h$ está sozinho em $O$.} Seja $B$ o envelope de $\ell$ em $O$
+    ($B=\{\ell\}$ ou $B=\{\ell,y\}$). Substitua $\{h\}$ e $B$ por $\{h,\ell\}$ e
+    $B\setminus\{\ell\}$ (descartando-o se ficar vazio). $\{h,\ell\}$ é viável por
+    hipótese e $B\setminus\{\ell\}$ é viável por ser subconjunto de envelope viável.
+  \item \emph{$h$ está com $x \ne \ell$ em $O$, ou seja, $\{h,x\} \in O$.}
+    Seja $B$ o envelope de $\ell$.
+    \begin{itemize}
+      \item Se $B=\{\ell\}$: troque $\{h,x\},\{\ell\}$ por $\{h,\ell\},\{x\}$.
+      \item Se $B=\{\ell,y\}$: troque $\{h,x\},\{\ell,y\}$ por $\{h,\ell\},\{x,y\}$.
+        O envelope $\{x,y\}$ é viável, pois $p_y \le p_h$ ($h$ é o mais pesado) e,
+        portanto, $p_x + p_y \le p_x + p_h \le 5$.
+    \end{itemize}
+\end{enumerate}
+Em todos os casos $O'$ é uma partição viável de $S$ com $|O'| \le |O|$, logo
+$O'$ é ótima e contém $\{h,\ell\}$.
+\end{proof}
+
+%--------------------------------------------------------------------
+\section*{(c) Propriedade de subestrutura ótima}
+
+O subproblema resultante após a escolha gulosa $E$ é $S' = S \setminus E$:
+\begin{itemize}
+  \item caso (i): $S' = S \setminus \{h,\ell\}$ (os livros restantes, exceto o mais pesado e o mais leve);
+  \item caso (ii): $S' = S \setminus \{h\}$ (os livros restantes, exceto o mais pesado).
+\end{itemize}
+Em ambos os casos $S'$ é uma instância do mesmo problema (mesmas restrições).
+
+\begin{lema}[Subestrutura ótima]
+Se $O$ é uma solução ótima para $S$ que contém $E$ (existe pelo Lema 1), então
+$O \setminus \{E\}$ é uma solução ótima para $S'$. Consequentemente,
+$\mathrm{OPT}(S) = 1 + \mathrm{OPT}(S')$, e $\{E\} \cup O^*$ é ótima para $S$ para
+qualquer solução ótima $O^*$ de $S'$.
+\end{lema}
+
+\begin{proof}
+$O\setminus\{E\}$ particiona $S'$ em envelopes viáveis, com $|O|-1$ envelopes.
+Suponha que exista uma solução $O''$ para $S'$ com $|O''| < |O|-1$. Então
+$O''\cup\{E\}$ é uma solução viável para $S$ (pois $E$ é viável e disjunto de $S'$)
+com $|O''|+1 < |O|$ envelopes, contradizendo a otimalidade de $O$. Logo
+$\mathrm{OPT}(S') = |O|-1 = \mathrm{OPT}(S)-1$, e para qualquer $O^*$ ótima de $S'$,
+$|\{E\}\cup O^*| = 1+\mathrm{OPT}(S') = \mathrm{OPT}(S)$.
+\end{proof}
+
+%--------------------------------------------------------------------
+\section*{(d) Pseudocódigo}
+
+Após ordenar em ordem não crescente, o índice $i$ aponta para o livro mais pesado
+restante e $j$ para o mais leve restante (técnica de dois ponteiros).
+
+\begin{algorithm}[H]
+\caption{\textsc{Empacota-Livros}$(p, n)$}
+\begin{algorithmic}[1]
+\Require pesos $p_1,\dots,p_n$, com $0 < p_k \le 5$
+\Ensure lista $\mathcal{E}$ de envelopes com o menor número possível de envelopes
+\State $L \gets$ livros $1..n$ ordenados em ordem \textbf{não crescente} de peso \Comment{$O(n\lg n)$}
+\State $\mathcal{E} \gets \emptyset$
+\State $i \gets 1$; \quad $j \gets n$
+\While{$i \le j$}
+  \If{$i < j$ \textbf{and} $p_{L[i]} + p_{L[j]} \le 5$} \Comment{caso (i)}
+    \State $\mathcal{E} \gets \mathcal{E} \cup \{\{L[i], L[j]\}\}$
+    \State $j \gets j - 1$
+  \Else \Comment{caso (ii) ou último livro}
+    \State $\mathcal{E} \gets \mathcal{E} \cup \{\{L[i]\}\}$
+  \EndIf
+  \State $i \gets i + 1$
+\EndWhile
+\State \Return $\mathcal{E}$
+\end{algorithmic}
+\end{algorithm}
+
+Invariante: no início de cada iteração, os livros não empacotados são exatamente
+$L[i..j]$, com $L[i]$ o mais pesado e $L[j]$ o mais leve entre eles.
+
+%--------------------------------------------------------------------
+\section*{(e) Correção}
+
+\begin{teorema}
+\textsc{Empacota-Livros} devolve uma distribuição viável com $\mathrm{OPT}(S)$ envelopes.
+\end{teorema}
+
+\begin{proof}
+Por indução em $|S|$ (o número de livros em $L[i..j]$).
+\emph{Base:} $|S| = 0$: o algoritmo devolve $\emptyset$, que é ótimo.
+\emph{Passo:} seja $|S|\ge 1$. Pelo invariante, o algoritmo escolhe exatamente o
+envelope $E$ dos itens (a)--(b): $\{L[i],L[j]\}$ se cabem juntos e $i<j$, ou
+$\{L[i]\}$ caso contrário; $E$ é viável. Pelo Lema~1, existe solução ótima de $S$
+que contém $E$. O algoritmo prossegue sobre $S' = S\setminus E = L[i'..j']$
+(subproblema identificado em (c)), com $|S'| < |S|$; pela hipótese de indução,
+devolve uma solução ótima $O^*$ de $S'$. Pelo Lema~2, $\{E\}\cup O^*$ é ótima para
+$S$, com $1+\mathrm{OPT}(S') = \mathrm{OPT}(S)$ envelopes. Como cada livro entra em
+exatamente um envelope (cada índice sai de $L[i..j]$ uma única vez), a saída é uma
+partição válida.
+\end{proof}
+
+%--------------------------------------------------------------------
+\section*{(f) Complexidade}
+
+\begin{itemize}
+  \item \textbf{Ordenação:} $O(n \lg n)$ com um algoritmo ótimo por comparação
+        (\textit{Merge Sort} ou \textit{Heapsort}).
+  \item \textbf{Laço:} a cada iteração $i$ aumenta em 1 (e $j$ possivelmente
+        diminui em 1), logo $j-i$ decresce ao menos 1 por iteração e há no máximo
+        $n$ iterações, cada uma em $O(1)$: total $O(n)$.
+  \item \textbf{Construção da saída:} cada envelope é inserido em $O(1)$; são no
+        máximo $n$ envelopes: $O(n)$.
+\end{itemize}
+Portanto, $T(n) = O(n\lg n) + O(n) + O(n) = O(n \lg n)$, dominado pela ordenação.
+O espaço adicional é $O(n)$.
+
+\end{document}

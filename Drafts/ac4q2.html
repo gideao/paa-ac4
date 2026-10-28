@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Modelo de uso do MathJax (HTML+Latex)</title>
+
+  <!-- MATHJAX 3 (através da CDN) -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- MATHJAX 3 (salvo no computador) -->
+  <!-- <script type="text/javascript" async src="../../../Aplicativos/MathJax-master/es5/tex-mml-chtml.js" async></script> -->
+</head>
+<body>
+
+<h1>Avaliação Continuada 04</h1>
+
+<h2>Questão 2 (Algoritmo Guloso)</h2>
+  
+  <p><strong>(Paradas em hotéis)</strong> Suponha que você deseja fazer uma viagem parando para dormir no menor número possível de hotéis. Você dispõe de uma lista \(x[1..n]\) contendo a posição de cada um dos \(n\) hotéis disponíveis ao longo da estrada, em ordem crescente. Observe que os hotéis são numerados de \(1\) até \(n\). A posição de um hotel é o km da estrada onde o hotel está localizado, e, para simplificar, vamos assumir que estas posições são distintas. Sua viagem vai iniciar no hotel 1 (localizado na posição \(x[1]\)), e vai terminar no hotel \(n\) (localizado na posição \(x[n]\)). Para não viajar muito cansado, você aceita percorrer no máximo \(D\) km por dia. Assuma que a distância entre dois hotéis consecutivos é no máximo \(D\), pois caso contrário não teríamos solução viável.<br /><br /> Uma estratégia intuitiva é parar no hotel mais distante da última parada que não ultrapasse \(D\) km de distância. Resta mostrar que esta estratégia fornece uma solução ótima. <br /><br /> <strong>Escolha gulosa:</strong> hotel mais distante que não ultrapasse \(D\) km da última parada.</p>
+<pre>        <code>
+          Exemplo:
+          D = 12
+          x[]:    0          5      8      11       15   17
+                  |----------|------|------|--------|----|---
+          hotel:  1          2      3      4        5    6
+                  |--------------------------|
+                              12
+          O hotel mais afastado do 1o hotel sem ultrapassar 12km é o hotel 4.
+        </code>
+      </pre>
+<p>Após escolher o próximo hotel \(u\), o subproblema resultante consiste em determinar o menor número de paradas em hotéis da posição \(x[u]\) até \(x[n]\), sem ficar mais de \(D\) km sem parar. Ou seja, o que muda do problema original para o subproblema é apenas a posição inicial.<br /><br /></p>
+<ol type="a">
+<li>Para mostrar que a estratégia gulosa é ótima, basta mostrar que sempre é possível adaptar uma solução ótima para que ela contenha a próxima escolha gulosa. Portanto, mostre que a sentença abaixo é verdadeira:<br /> "Seja \(G = [u_1,u_2,\ldots,u_m]\) uma solução gulosa segundo o critério acima, com \(u_1 = 1, u_m = n\) e \(u_i &lt; u_{i+1}\) para todo \(1 \leq i &lt; n\). <br /> Seja \(O = [v_1,v_2,\ldots,v_\ell]\) uma solução ótima qualquer cujo \(k\)-ésimo hotel é o primeiro hotel diferente da solução gulosa \(G\), com \(1 &lt; k &lt; \ell \), \(v_1 = 1\), \(v_\ell = n\) e \(v_i &lt; v_{i+1}\) para todo \(1 \leq i &lt; n\). Ou seja, \(v_i = u_i\) para todo \(1 \leq i &lt; k\), e \(v_k \neq u_k\). Mostre que é possível construir uma solução viável trocando \(u_k\) por elementos de \(O\), sem piorar o valor da solução ótima \(O\)."<br /><br /> Observe que \(\ell \leq m\), pois \(O\) é uma solução ótima. Além disso, a solução \(O\) tem mais de \(k\) hotéis, pois caso contrário teríamos \(v_k = n\) e \(u_k = n\), mas estamos assumindo que \(v_k \neq u_k\). <br /><br /></li>
+<li>Forneça o pseudocódigo e a complexidade do algoritmo guloso.</li>
+</ol>
+
+<hr>
+
+</body>
+</html>

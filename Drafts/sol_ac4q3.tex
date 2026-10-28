@@ -1,0 +1,135 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\floatname{algorithm}{Algoritmo}
+\renewcommand{\algorithmicrequire}{\textbf{Entrada:}}
+\renewcommand{\algorithmicensure}{\textbf{Saída:}}
+
+\title{Avaliação Continuada 04 -- Questão 3\\ \large Impressão nítida}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Ideia.} No algoritmo recursivo, a única informação que muda entre
+as chamadas é $i$, o índice da primeira palavra do subproblema ($M$ e $W$ são
+fixos). Como o mesmo $i$ é resolvido muitas vezes por caminhos diferentes de quebras,
+memorizamos a resposta de cada $i$ em vetores:
+\begin{itemize}
+  \item $\mathit{custo}[i]$: custo mínimo para imprimir as palavras $i,\dots,n$;
+  \item $\mathit{prox}[i]$: índice $j$ da próxima quebra de linha em uma solução
+        ótima a partir de $i$ ($\mathit{prox}[i]=n+1$ indica que não há quebra).
+\end{itemize}
+A recorrência, tirada diretamente das linhas 01--11 do algoritmo recursivo, é
+\[
+\mathit{custo}[i] =
+\begin{cases}
+0, & \text{se } M[i,n] \le W,\\[2pt]
+\displaystyle\min_{\substack{i < j \le n\\ M[i,j-1]\le W}}
+  \Big\{ (W - M[i,j-1])^2 + \mathit{custo}[j] \Big\}, & \text{caso contrário.}
+\end{cases}
+\]
+O conjunto do $\min$ nunca é vazio, pois $M[i,i]=L[i]\le W$ (o candidato $j=i+1$
+sempre é válido). A resposta do problema é $\mathit{custo}[1]$.
+
+%--------------------------------------------------------------------
+\section*{(a) Número de subsoluções}
+
+São armazenadas $n$ subsoluções: uma para cada $i \in \{1,\dots,n\}$, isto é,
+$\mathit{custo}[1..n]$ (e o respectivo $\mathit{prox}[1..n]$).
+\emph{Justificativa:} todo subproblema gerado pela recursão é ``imprimir as palavras
+$i,\dots,n$'', identificado unicamente pelo parâmetro $i$, que só assume valores entre
+$1$ e $n$ (a chamada inicial usa $i=1$ e as recursivas usam $j\in\{i+1,\dots,n\}$).
+Portanto há apenas $n$ subproblemas distintos, embora a recursão sem memorização os
+resolva um número exponencial de vezes.
+
+%--------------------------------------------------------------------
+\section*{(b) Caso base}
+
+O caso base corresponde às linhas 01--02: para todo $i$ tal que $M[i,n] \le W$, as
+palavras $i,\dots,n$ cabem em uma única linha, que é a última e tem custo zero.
+Assim,
+\[
+\mathit{custo}[i] = 0 \quad\text{e}\quad \mathit{prox}[i] = n+1
+\qquad \text{para todo } i \text{ com } M[i,n]\le W.
+\]
+Como $M[i,n]$ decresce quando $i$ cresce, esses índices formam um sufixo
+$\{i_0,\dots,n\}$; em particular, $i=n$ é sempre caso base, pois $M[n,n]=L[n]\le W$.
+
+%--------------------------------------------------------------------
+\section*{(c) Ordem de preenchimento}
+
+A tabela é preenchida com $i$ \textbf{decrescente}, de $n$ até $1$.
+
+\emph{Argumento:} $\mathit{custo}[i]$ depende apenas de $\mathit{custo}[j]$ com
+$j > i$ (na recorrência, $j$ varia de $i+1$ a $n$). Quando calculamos a posição $i$,
+todas as posições $i+1,\dots,n$ já foram preenchidas, seja pelo caso base, seja
+em iterações anteriores. Logo nenhum elemento ainda não preenchido é acessado.
+A matriz $M$ é preenchida antes, pelo algoritmo do enunciado.
+
+%--------------------------------------------------------------------
+\section*{(d) Pseudocódigo}
+
+\begin{algorithm}[H]
+\caption{\textsc{Impressão-Nítida-PD}$(L, n, W)$}
+\begin{algorithmic}[1]
+\Require tamanhos $L[1..n]$, com $L[i]\le W$, e largura $W$
+\Ensure custo mínimo e conjunto de quebras de uma solução ótima
+\For{$i \gets 1$ \textbf{até} $n$} \Comment{preenche $M$ em $O(n^2)$}
+  \State $M[i,i] \gets L[i]$
+  \For{$j \gets i+1$ \textbf{até} $n$}
+    \State $M[i,j] \gets M[i,j-1] + L[j] + 1$
+  \EndFor
+\EndFor
+\For{$i \gets n$ \textbf{até} $1$ \textbf{passo} $-1$} \Comment{ordem decrescente}
+  \If{$M[i,n] \le W$} \Comment{caso base: última linha}
+    \State $\mathit{custo}[i] \gets 0$; \quad $\mathit{prox}[i] \gets n+1$
+  \Else
+    \State $\mathit{custo}[i] \gets \infty$
+    \For{$j \gets i+1$ \textbf{até} $n$}
+      \If{$M[i,j-1] > W$} \textbf{break} \EndIf
+      \State $c \gets (W - M[i,j-1])^2 + \mathit{custo}[j]$
+      \If{$c < \mathit{custo}[i]$}
+        \State $\mathit{custo}[i] \gets c$; \quad $\mathit{prox}[i] \gets j$
+      \EndIf
+    \EndFor
+  \EndIf
+\EndFor
+\State $\mathit{sol} \gets \emptyset$; \quad $i \gets 1$ \Comment{reconstrução da solução}
+\While{$\mathit{prox}[i] \le n$}
+  \State $i \gets \mathit{prox}[i]$
+  \State $\mathit{sol} \gets \mathit{sol} \cup \{i\}$
+\EndWhile
+\State \Return $(\mathit{sol}, \mathit{custo}[1])$
+\end{algorithmic}
+\end{algorithm}
+
+\noindent\textbf{Exemplo.} Para a entrada do enunciado ($W=12$), o algoritmo
+obtém $\mathit{custo}[1]=33$ com quebras em $\{3,5,8,11\}$. Logo, a solução
+apresentada no enunciado é ótima.
+
+%--------------------------------------------------------------------
+\section*{(e) Complexidade de tempo}
+
+\begin{itemize}
+  \item \textbf{Preenchimento de $M$:} $\sum_{i=1}^{n}(n-i+1) = O(n^2)$.
+  \item \textbf{Preenchimento de $\mathit{custo}$ e $\mathit{prox}$:} são $n$
+        subproblemas (item (a)); cada um examina no máximo $n-i$ candidatos $j$,
+        cada um em $O(1)$ (a linha 10 do recursivo vira a atribuição
+        $\mathit{prox}[i]\gets j$, de custo constante). Total:
+        $\sum_{i=1}^{n} O(n-i) = O(n^2)$.
+  \item \textbf{Reconstrução:} cada passo avança $i$ estritamente, logo $O(n)$.
+\end{itemize}
+Portanto, o tempo total é
+\[ T(n) = O(n^2) + O(n^2) + O(n) = O(n^2), \]
+polinomial, em contraste com o tempo exponencial do backtracking. O espaço é
+$O(n^2)$ por causa de $M$ (os vetores $\mathit{custo}$ e $\mathit{prox}$ ocupam $O(n)$).
+
+\end{document}
