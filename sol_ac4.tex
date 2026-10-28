@@ -11,6 +11,14 @@
 \floatname{algorithm}{Algoritmo}
 \renewcommand{\algorithmicrequire}{\textbf{Entrada:}}
 \renewcommand{\algorithmicensure}{\textbf{Saída:}}
+\renewcommand{\algorithmicwhile}{\textbf{enquanto}}
+\renewcommand{\algorithmicfor}{\textbf{para}}
+\renewcommand{\algorithmicdo}{\textbf{faça}}
+\renewcommand{\algorithmicif}{\textbf{se}}
+\renewcommand{\algorithmicthen}{\textbf{então}}
+\renewcommand{\algorithmicelse}{\textbf{senão}}
+\renewcommand{\algorithmicreturn}{\textbf{retorne}}
+\renewcommand{\algorithmicend}{\textbf{fim}}
 
 \newtheorem{lema}{Lema}
 \newtheorem{teorema}{Teorema}
@@ -25,7 +33,7 @@
 \maketitle
 
 %====================================================================
-\section*{Questão 1 -- Empacotamento de livros em envelopes (Algoritmo Guloso)}
+\section*{Questão 1 -- Empacotamento de livros em envelopes}
 \setcounter{lema}{0}\setcounter{teorema}{0}
 \noindent\textbf{Notação.} Seja $S$ o conjunto de livros ainda não empacotados,
 $C = 5$ a capacidade de um envelope, $h \in S$ um livro de \emph{maior} peso em $S$
@@ -121,7 +129,7 @@ $|\{E\}\cup O^*| = 1+\mathrm{OPT}(S') = \mathrm{OPT}(S)$.
 %--------------------------------------------------------------------
 \subsection{Pseudocódigo}
 
-Após ordenar em ordem não crescente, o índice $i$ aponta para o livro mais pesado
+Após ordenar em ordem decrescente, o índice $i$ aponta para o livro mais pesado
 restante e $j$ para o mais leve restante (técnica de dois ponteiros).
 
 \begin{algorithm}[H]
@@ -129,11 +137,11 @@ restante e $j$ para o mais leve restante (técnica de dois ponteiros).
 \begin{algorithmic}[1]
 \Require pesos $p_1,\dots,p_n$, com $0 < p_k \le 5$
 \Ensure lista $\mathcal{E}$ de envelopes com o menor número possível de envelopes
-\State $L \gets$ livros $1..n$ ordenados em ordem \textbf{não crescente} de peso \Comment{$O(n\lg n)$}
+\State $L \gets$ livros $1..n$ ordenados em ordem \textbf{decrescente} de peso \Comment{$O(n\lg n)$}
 \State $\mathcal{E} \gets \emptyset$
 \State $i \gets 1$; \quad $j \gets n$
 \While{$i \le j$}
-  \If{$i < j$ \textbf{and} $p_{L[i]} + p_{L[j]} \le 5$} \Comment{caso (i)}
+  \If{$i < j$ \textbf{e} $p_{L[i]} + p_{L[j]} \le 5$} \Comment{caso (i)}
     \State $\mathcal{E} \gets \mathcal{E} \cup \{\{L[i], L[j]\}\}$
     \State $j \gets j - 1$
   \Else \Comment{caso (ii) ou último livro}
@@ -184,8 +192,9 @@ partição válida.
 Portanto, $T(n) = O(n\lg n) + O(n) + O(n) = O(n \lg n)$, dominado pela ordenação.
 O espaço adicional é $O(n)$.
 
+%====================================================================
 
-\section*{Questão 2 -- Paradas em hotéis (Algoritmo Guloso)}
+\section*{Questão 2 -- Paradas em hotéis}
 \setcounter{lema}{0}\setcounter{teorema}{0}
 \noindent\textbf{Notação.} Uma sequência de hotéis $S=[s_1,\dots,s_r]$ é
 \emph{viável} se $s_1 = 1$, $s_r = n$, $s_i < s_{i+1}$ e
@@ -271,7 +280,7 @@ repete por indução.)
 \State $u \gets 1$ \Comment{última parada}
 \State $i \gets 1$ \Comment{candidato atual}
 \While{$u < n$}
-  \While{$i < n$ \textbf{and} $x[i+1] - x[u] \le D$}
+  \While{$i < n$ \textbf{e} $x[i+1] - x[u] \le D$}
     \State $i \gets i + 1$ \Comment{avança enquanto o próximo hotel é alcançável}
   \EndWhile
   \State $u \gets i$ \Comment{escolha gulosa: hotel mais distante alcançável}
@@ -297,7 +306,7 @@ sem necessidade de ordenação, pois $x$ já está em ordem crescente. O espaço
 \clearpage
 
 %====================================================================
-\section*{Questão 3 -- Impressão nítida (Programação Dinâmica)}
+\section*{Questão 3 -- Impressão nítida}
 \setcounter{lema}{0}\setcounter{teorema}{0}
 \noindent\textbf{Ideia.} No algoritmo recursivo, a única informação que muda entre
 as chamadas é $i$, o índice da primeira palavra do subproblema ($M$ e $W$ são
@@ -375,7 +384,7 @@ A matriz $M$ é preenchida antes, pelo algoritmo do enunciado.
   \Else
     \State $\mathit{custo}[i] \gets \infty$
     \For{$j \gets i+1$ \textbf{até} $n$}
-      \If{$M[i,j-1] > W$} \textbf{break} \EndIf
+      \If{$M[i,j-1] > W$} \textbf{interrompa} \EndIf
       \State $c \gets (W - M[i,j-1])^2 + \mathit{custo}[j]$
       \If{$c < \mathit{custo}[i]$}
         \State $\mathit{custo}[i] \gets c$; \quad $\mathit{prox}[i] \gets j$
